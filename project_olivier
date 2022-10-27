@@ -1,1 +1,2 @@
-prin("Hello Test")
+print("Hello Test")
+data_1 = input("quel sera votre carte?")
