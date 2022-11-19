@@ -41,13 +41,26 @@ moy_arr = np.mean(arr, axis=0)
 var_arr = np.var(arr, axis=0)
 covar = np.cov(arr.T)
 
-log_return = np.zeros((252,4))
+# Calcul des log returns dans un np.array (log_return)
+# le return du premier jour est fixé à 1 (pour éviter les produits des returns égale à 0)
+
+log_return = np.zeros([252,len(stocks)])
 log_return[0,0:] = 1
 
-for j in range(0, 4):
+for j in range(0, len(stocks)):
       for i in range(1, 252):
             log_return[i,j] = math.log(arr[i, j]/arr[i-1, j])
             print(f"log_return [{i},{j}]", log_return[i, j])
+
+# Génération de la matrice colonne contenant les poids des actions dans le portefeuille
+weights = np.random.uniform(low=0.01, high=1, size=len(stocks))
+sum_weights = sum(weights)
+weights_std = weights / sum(weights)
+
+print("Pondérations non-normalisées: ", weights)
+print("Somme des pondérations non-normalisées: ", sum_weights)
+print("Pondérations normalisées: ", weights_std)
+print("Somme des pondérations normalisées: ", sum(weights_std))
 
 
 
