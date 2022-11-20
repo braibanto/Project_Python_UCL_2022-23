@@ -4,7 +4,7 @@ Folder for the LPHYS Python project 2022-23
 
 Calculer le log retour journalier de votre action comme
 
-  logRi = j∑ pj​log(Ri+1 / Ri).
+  logRi = j∑ pj log(Ri+1 / Ri).
 
 avec
   j∑ est la somme sur chaque élément du portefeuille.
