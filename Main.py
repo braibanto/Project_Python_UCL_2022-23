@@ -22,14 +22,14 @@ def fetch_stock_price(stocks, start_date, end_date):
 
 def fetch_stock_returns(stocks, start_date, end_date):
 
-    """crée un dataframe contenant la moyenne des daily returns des actions
+    """crée un dataframe contenant la moyenne des daily log_returns des actions
     INPUT:
-          - stock : list (of strings)
+          - stock : ticker des actions dans le scope de cette analyse (list of strings)
           - start_date : date de début (utilise le module datetime as dt)
           - end_date : date de fin (utilise le module datetime as dt)
     OUTPUT:
-          - moy_return : dataframe contenant les moyennes des returns journaliers
-          - matrix_cov : dataframe contenant la matrice des variances/covariances des returns journaliers"""
+          - moy_return : dataframe contenant les moyennes des log_returns journaliers
+          - matrix_cov : dataframe contenant la matrice des variances/covariances des log_returns journaliers"""
 
     stock_price = pdr.get_data_yahoo(stocks, start=start_date, end=end_date)
     stock_price = stock_price["Adj Close"]
