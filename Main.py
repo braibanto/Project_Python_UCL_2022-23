@@ -78,7 +78,7 @@ def sharp_ratio_opp(poids, stock_return, cov_matrix, taux_ss_risque = 0):
     sharp_ratio = (perf_ret - taux_ss_risque) / risk_port
     return - sharp_ratio
 
-
+# MAIN-------------------------------------------------------------------------
 
 stock_list = ["MSFT", "IBM", "AAPL", "TSLA", "META", "GOOG", "AMZN", "JPM", "V",
               "WMT", "BABA", "CMCSA"]
