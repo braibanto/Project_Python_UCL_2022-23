@@ -62,10 +62,28 @@ weights = np.random.uniform(low=0.01, high=1, size=len(stocks))
 sum_weights = sum(weights)
 weights_std = weights / sum(weights)
 
+
 print("Pondérations non-normalisées: ", weights)
 print("Somme des pondérations non-normalisées: ", sum_weights)
 print("Pondérations normalisées: ", weights_std)
 print("Somme des pondérations normalisées: ", sum(weights_std))
+
+
+# Calcul du rendement pondéré du portefeuille (methode np.average)
+rdt_portefeuille = np.zeros([252,1])
+rdt_portefeuille = np.average(ret_simple, axis=1, weights=weights_std)
+
+# Calcul de la rentabilité moyenne journalière du portefeuille
+moy_rdt_portefeuille = np.mean(rdt_portefeuille, axis=0)
+print("Rendement moyen pondéré portefeuille: ", moy_rdt_portefeuille)
+
+# Calcul de l'écart type du rdt du portefeuille
+std_rdt_portefeuille = np.std(rdt_portefeuille, axis=0)
+print("Risque portefeuille: ", std_rdt_portefeuille)
+
+# Calcul du ratio de Sharp
+sr_portefeuille = moy_rdt_portefeuille / std_rdt_portefeuille
+print("Ration de sharpe portefeuille: ",sr_portefeuille)
 
 
 
