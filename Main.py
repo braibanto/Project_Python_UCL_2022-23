@@ -33,10 +33,10 @@ def fetch_stock_returns(stocks, start_date, end_date):
 
     stock_price = pdr.get_data_yahoo(stocks, start=start_date, end=end_date)
     stock_price = stock_price["Adj Close"]
-    stock_returns = stock_price.pct_change()
-    moy_return = stock_returns.mean()
-    matrix_cov = stock_returns.cov()
-    return moy_return, matrix_cov
+    stock_log_returns = np.log(stock_price / stock_price.shift(1)).dropna()
+    moy_log_return = stock_log_returns.mean()
+    matrix_cov = stock_log_returns.cov()
+    return moy_log_return, matrix_cov
 
 
 def ponderation_random_stardardised(stocks):
