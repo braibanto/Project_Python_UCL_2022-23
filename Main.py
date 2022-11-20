@@ -15,10 +15,8 @@ stop = dt.datetime(2021, 1, 1)
 
 result = pd.DataFrame()
 data_df = pd.DataFrame()
-stocks = ["MSFT", "IBM", "AAPL", "TSLA"]
-
-      # "META", "GOOG", "AMZN", "JPM", "V",
-          #"WMT"]
+stocks = ["MSFT", "IBM", "AAPL", "TSLA","META", "GOOG", "AMZN", "JPM", "V",
+          "WMT", "BABA", "CMCSA"]
 
 # Construction du DataFrame result[]:
 for stock in stocks:
@@ -73,14 +71,14 @@ print("Somme des pondérations normalisées: ", sum(weights_std))
 rdt_portefeuille = np.zeros([252,1])
 rdt_portefeuille = np.average(ret_simple, axis=1, weights=weights_std)
 
-# Calcul de la rentabilité moyenne journalière du portefeuille
-moy_rdt_portefeuille = np.mean(rdt_portefeuille, axis=0)
-print("Rendement moyen pondéré portefeuille: ", moy_rdt_portefeuille)
+# Calcul de la rentabilité annuelle moyenne du portefeuille
+moy_rdt_annuel_portefeuille = np.mean(rdt_portefeuille, axis=0) * 252
+print("Rendement moyen pondéré du portefeuille: ", moy_rdt_annuel_portefeuille)
 
 # Calcul de l'écart type du rdt du portefeuille
-std_rdt_portefeuille = np.std(rdt_portefeuille, axis=0)
-print("Risque portefeuille: ", std_rdt_portefeuille)
+std_rdt_annuel_portefeuille = np.std(rdt_portefeuille, axis=0) * 252
+print("Risque du portefeuille: ", std_rdt_annuel_portefeuille)
 
 # Calcul du ratio de Sharp
-sr_portefeuille = moy_rdt_portefeuille / std_rdt_portefeuille
-print("Ration de sharpe portefeuille: ",sr_portefeuille)
+sr_portefeuille = moy_rdt_annuel_portefeuille / std_rdt_annuel_portefeuille
+print("Ration de sharpe du portefeuille: ",sr_portefeuille)
