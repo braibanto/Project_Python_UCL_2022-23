@@ -84,9 +84,3 @@ print("Risque portefeuille: ", std_rdt_portefeuille)
 # Calcul du ratio de Sharp
 sr_portefeuille = moy_rdt_portefeuille / std_rdt_portefeuille
 print("Ration de sharpe portefeuille: ",sr_portefeuille)
-
-
-
-
-
-
