@@ -9,7 +9,7 @@ Calculer le log retour journalier de votre action comme
 avec
   j∑ est la somme sur chaque élément du portefeuille.
   pj est le poids d'une action dans le portefeuille.
-  Ri est la valeur de l'action au jour iii à la fermeture (AdjCloseAdj CloseAdjClose dans pandas).
+  Ri est la valeur de l'action au jour i à la fermeture (Adj Close dans pandas).
 
 Estimer le log retour annuel moyen (attention une année en finance dure 252 jours), la volatilité annuelle et calculer le ratio de Sharp défini comme
 
