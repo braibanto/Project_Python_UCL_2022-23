@@ -91,11 +91,13 @@ def sharp_ratio_opp(poids, moy_return, cov_matrix, ss_risque=0):
 def max_sharp_ratio(moy_return, cov_matrix, ss_risque=0, constraints_set=(0,1)):
 
     long_port = len(moy_return)
+    init_guess = np.random.random (long_port)
+    init_guess /= init_guess.sum ()
     args = (moy_return, cov_matrix, ss_risque)
     constraints = ({'type': 'eq', 'fun': lambda x: np.sum(x) - 1})
     bound = constraints_set
     bounds = tuple(bound for asset in range(long_port))
-    result = scy.minimize(sharp_ratio_opp, long_port*[1./long_port], args=args, method='SLSQP',
+    result = scy.minimize(sharp_ratio_opp, init_guess, args=args, method='SLSQP',
                                      bounds=bounds, constraints=constraints)
 
     poids_result_df = pd.DataFrame(result['x'], index=moy_return.index, columns=['poids'])
@@ -104,13 +106,13 @@ def max_sharp_ratio(moy_return, cov_matrix, ss_risque=0, constraints_set=(0,1)):
 
 def minimum_variance(moy_return, cov_matrix, constraints_set=(0,1)):
     long_port = len(moy_return)
-    init_guess = np.random.random (long_port)
-    init_guess /= init_guess.sum ()
+    init_guess = np.random.random(long_port)
+    init_guess /= init_guess.sum()
     args = (moy_return, cov_matrix)
     constraints = ({'type': 'eq', 'fun': lambda x: np.sum(x) - 1})
     bound = constraints_set
     bounds = tuple(bound for asset in range(long_port))
-    result = scy.minimize(variance_port, long_port * [1./long_port], args=args, method='SLSQP',
+    result = scy.minimize(variance_port, init_guess, args=args, method='SLSQP',
                            bounds=bounds, constraints=constraints)
 
     result_df = pd.DataFrame (result['x'], index=moy_return.index, columns=['poids'])
