@@ -19,9 +19,7 @@ def fetch_stock_price(stocks, start_date, end_date):
 
     stock_price = yf.download(stocks, start=start_date, end=end_date, progress=True)
     stock_price = stock_price['Close']
-    #stock_price_r = stock_price[::-1]
     return stock_price
-
 
 def calc_stock_returns(stocks, start_date, end_date):
 
@@ -36,8 +34,6 @@ def calc_stock_returns(stocks, start_date, end_date):
 
     stock_price = yf.download(stocks, start=start_date, end=end_date, progress=True)
     stock_price = stock_price['Close']
-    #stock_price_r = stock_price[::-1]
-
 
     log_returns = np.log(stock_price / stock_price.shift(1))
     moy_log_return = log_returns.mean()
@@ -73,11 +69,9 @@ def poids_random(stock_list):
 
 
 def portfolio_simulation(stocks, start, end, nb_sim):
-
     returns = []
     risk = []
     s_ratio = []
-    poids_list = []
     poids_list = []
 
     moy_return = calc_stock_returns(stocks, start, end)[0]
@@ -90,15 +84,15 @@ def portfolio_simulation(stocks, start, end, nb_sim):
         s_ratio.append(-sharp_ratio_opp(poids_sim, moy_return, cov_matrix))
         poids_list.append(poids_sim)
 
-    sim_data_df = pd.DataFrame ({"port_return": returns, "port_risk": risk, "sharp_ratio": s_ratio,
+    sim_data_df = pd.DataFrame({"port_return": returns, "port_risk": risk, "sharp_ratio": s_ratio,
                                  "allocation": poids_list})
 
-    top_s_ratio = sim_data_df["sharp_ratio"].argmax ()
-    allocation_optimale_df = pd.DataFrame(sim_data_df["allocation"][top_s_ratio])
-    allocation_optimale_df.index = stocks
+    top_s_ratio = sim_data_df["sharp_ratio"].argmax()
+    allocation_optimale = sim_data_df["allocation"][top_s_ratio]
 
-    print ("Le portefeuille ayant le plus grand ratio de sharpe est: ", allocation_optimale_df)
-    print ("Il a un return de ", round(sim_data_df["port_return"][top_s_ratio]*100,2), ", ")
+    print ("Le portefeuille ayant le plus grand ratio de sharpe est: ", np.round(allocation_optimale*100,1))
+    print(" pour :", moy_return.index)
+    print ("Il a un return de ", round(sim_data_df["port_return"][top_s_ratio]*100,2), "%, ")
     print("et un ratio de sharpe de ", round(sim_data_df["sharp_ratio"][top_s_ratio],2))
 
     # plot de la simulation :
