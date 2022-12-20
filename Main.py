@@ -123,68 +123,7 @@ def portfolio_simulation(stocks, start, end, nb_sim):
     plt.scatter(max_s_ratio_port[1], max_s_ratio_port[0], color='g', marker='*', s=500)
     plt.show ()
 
-
-
-
-    # #sim_data_df = pd.DataFrame({"port_return": returns, "port_risk": risk, "sharp_ratio": s_ratio,
-    #                              "allocation": poids_list})
-    #
-    # max_s_ratio = sim_data_df["sharp_ratio"].argmax() # identifie l'indice de la simulation avec le + grand r_sharp
-    # allocation_max_SR = sim_data_df["allocation"][max_s_ratio] # identifie l'allocation de la simulation avec le + grand r_sharp
-    #
-    # min_risk = sim_data_df["port_risk"].argmin()# identifie l'indice de la simulation avec le risque minimum
-    # allocation_min_risk = sim_data_df["allocation"][min_risk]  # identifie l'allocation de la simulation avec risque minimum
-    #
-    # print("RESULTAT de la SIMULATION")
-    # print("-------------------------")
-    # print("   ")
-    # print ("Le portefeuille ayant le plus grand ratio de sharpe est: ", np.round(allocation_max_SR*100,1))
-    # print(" pour :", moy_return.index)
-    # print ("Il a un return de ", round(sim_data_df["port_return"][max_s_ratio]*100,2), "%, ")
-    # print("un ratio de sharpe de ", round(sim_data_df["sharp_ratio"][max_s_ratio],2))
-    # print("un risque de ", sim_data_df["port_risk"][max_s_ratio])
-    # print("    ")
-    #
-    # print ("Le portefeuille ayant le risque minimum: ", np.round (allocation_min_risk * 100, 1))
-    # print (" pour :", moy_return.index)
-    # print ("Il a un return de ", round (sim_data_df["port_return"][min_risk] * 100, 2), "%, ")
-    # print ("et un ratio de sharpe de ", round (sim_data_df["sharp_ratio"][min_risk], 2))
-    # print("un risque de ", sim_data_df["port_risk"][min_risk])
-    #
-    # # plot de la simulation :
-    # sim_data_df.plot (x="port_risk", y="port_return", kind="scatter", c="sharp_ratio", s=9)
-    #
-    # #print(sim_data_df)
-
-
-
-    #y_max_SR_pos = sim_data_df["port_return"][x_max_SR_pos]
-    #sim_data_df.plot(x= "port_risk"[x_max_SR_pos], y="port_return"[x_max_SR_pos], c='red', s=8)
-
-    # fig, ax = plt.subplots ()
-    # ax.scatter(sim_data_df["port_risk"], sim_data_df["port_return"], c=sim_data_df["s_ratio"])
-    # #ax.scatter(risk[sharp_ratio, returns[sharp_ratio.argmax()], c='r')
-    # ax.set_xlabel ("Volatilité")
-    # ax.set_ylabel ("Return")
-    #plt.show()
     return
-
-# def sim_plot():
-#
-#     fig, ax = plt.subplots()
-#     ax.scatter(df[], returns, c=sharp_ratio)
-#     #ax.scatter(risk[sharp_ratio, returns[sharp_ratio.argmax()], c='r')
-#     ax.set_xlabel("Volatilité")
-#     ax.set_ylabel("Return")
-#     plt.show()
-#
-#     # plt.scatter(risk, returns, c=sharp_ratio)
-#     # plt.title("Plot diagram : Risk - Return et Frontière efficace")
-#     # plt.xlabel("Risque du portefeuille (std)")
-#     # plt.ylabel("Retour du portefeuille")
-#     # plt.show()
-#     return
-
 
 
 def variance_port(poids, moy_return, cov_matrix):
