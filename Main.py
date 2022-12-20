@@ -87,13 +87,24 @@ def portfolio_simulation(stocks, start, end, nb_sim):
     sim_data_df = pd.DataFrame({"port_return": returns, "port_risk": risk, "sharp_ratio": s_ratio,
                                  "allocation": poids_list})
 
-    top_s_ratio = sim_data_df["sharp_ratio"].argmax()
-    allocation_optimale = sim_data_df["allocation"][top_s_ratio]
+    max_s_ratio = sim_data_df["sharp_ratio"].argmax() # identifie l'indice de la simulation avec le + grand r_sharp
+    allocation_max_SR = sim_data_df["allocation"][max_s_ratio] # identifie l'allocation de la simulation avec le + grand r_sharp
 
-    print ("Le portefeuille ayant le plus grand ratio de sharpe est: ", np.round(allocation_optimale*100,1))
+    min_risk = sim_data_df["risk"].argmin()# identifie l'indice de la simulation avec le risque minimum
+    allocation_min_risk = sim_data_df["allocation"][min_risk]  # identifie l'allocation de la simulation avec risque minimum
+
+    print ("Le portefeuille ayant le plus grand ratio de sharpe est: ", np.round(allocation_max_SR*100,1))
     print(" pour :", moy_return.index)
-    print ("Il a un return de ", round(sim_data_df["port_return"][top_s_ratio]*100,2), "%, ")
-    print("et un ratio de sharpe de ", round(sim_data_df["sharp_ratio"][top_s_ratio],2))
+    print ("Il a un return de ", round(sim_data_df["port_return"][max_s_ratio]*100,2), "%, ")
+    print("un ratio de sharpe de ", round(sim_data_df["sharp_ratio"][max_s_ratio],2))
+    print("un risque de ", sim_data_df["risk"][max_s_ratio])
+    print("    ")
+
+    print ("Le portefeuille ayant le risque minimum: ", np.round (allocation_min_risk * 100, 1))
+    print (" pour :", moy_return.index)
+    print ("Il a un return de ", round (sim_data_df["port_return"][top_s_ratio] * 100, 2), "%, ")
+    print ("et un ratio de sharpe de ", round (sim_data_df["sharp_ratio"][top_s_ratio], 2))
+    print("un risque de ", sim_data_df["risk"][min_risk])
 
     # plot de la simulation :
     sim_data_df.plot (x="port_risk", y="port_return", kind="scatter", c="sharp_ratio", s=9)
@@ -155,14 +166,13 @@ def sharp_ratio_opp(poids, moy_return, cov_matrix, ss_risque=0):
         - stock_return: array contenant la moyenne """
 
     p_ret, r_port = perf_portfolio(poids, moy_return, cov_matrix)
-    sharp_ratio = - (p_ret - ss_risque) / r_port
-    return sharp_ratio
+    sharp_ratio = (p_ret - ss_risque) / r_port
+    return - sharp_ratio
 
 def max_sharp_ratio(moy_return, cov_matrix, ss_risque=0, constraints_set=(0,1)):
 
     long_port = len(moy_return)
-    init_guess = np.random.random (long_port)
-    init_guess /= init_guess.sum ()
+    init_guess = long_port*[1./long_port]
     args = (moy_return, cov_matrix, ss_risque)
     constraints = ({'type': 'eq', 'fun': lambda x: np.sum(x) - 1})
     bound = constraints_set
@@ -171,13 +181,12 @@ def max_sharp_ratio(moy_return, cov_matrix, ss_risque=0, constraints_set=(0,1)):
                                      bounds=bounds, constraints=constraints)
 
     poids_result_df = pd.DataFrame(result['x'], index=moy_return.index, columns=['poids'])
-    print(round(poids_result_df*100,2))
+    #print(round(poids_result_df*100,2))
     return result, poids_result_df
 
 def minimum_variance(moy_return, cov_matrix, constraints_set=(0,1)):
     long_port = len(moy_return)
-    init_guess = np.random.random(long_port)
-    init_guess /= init_guess.sum()
+    init_guess = long_port*[1./long_port]
     args = (moy_return, cov_matrix)
     constraints = ({'type': 'eq', 'fun': lambda x: np.sum(x) - 1})
     bound = constraints_set
@@ -186,19 +195,21 @@ def minimum_variance(moy_return, cov_matrix, constraints_set=(0,1)):
                            bounds=bounds, constraints=constraints)
 
     result_df = pd.DataFrame (result['x'], index=moy_return.index, columns=['poids'])
-    print(round(result_df*100,2))
-    return result
+
+
+    return result, result_df
 
 # MAIN-------------------------------------------------------------------------
-stock_list = ["MSFT", "IBM", "META", "GOOG"]
+stock_list = ["MSFT", "IBM", "META", "GOOG", "V", "JNJ"]
 start_d = dt.datetime(2020, 1, 1)
 stop_d = dt.datetime(2020, 12, 31)
 
 price_matrix = fetch_stock_price(stock_list, start_d, stop_d)
 result_calc = calc_stock_returns(stock_list, start_d, stop_d)
-print(price_matrix)
+
+#print(price_matrix)
 #print(result_calc)
-print(round(result_calc[0]*252*100, 2))
+#print(round(result_calc[0]*252*100, 2))
 
 
 #weights = poids_random_stardardised(stock_list)
@@ -207,19 +218,24 @@ print(round(result_calc[0]*252*100, 2))
 #print("type port_perf: ", port_perf)
 #print(type(port_perf))
 
+
+#
+# Optimisation function
+# ----------------------
+# minimi_var = minimum_variance(result_calc[0], result_calc[1])
+# print(type(minimi_var))
+# print("minimisation variance: ", minimi_var)
+# print("Poids Optimisation Var:")
+# print("optimisation Var - poids: ", minimi_var[1]*100)
+# print("Perf Portfolio Minimimum Var", np.dot(result_calc[0], minimi_var[1])*252*100, " %")
+
 # optimi_SR = max_sharp_ratio(result_calc[0], result_calc[1])
 # print(type(optimi_SR))
 # print("optimisation SR :", optimi_SR[0])
-#
 # print("Poids Optimisation SR:")
-# print("optimisation SR - poids: ", optimi_SR[1])
-# print("Perf Portfolio Optimisation SR", np.dot(result_calc[0],optimi_SR[1]))
-#
-#
-# minimi_var = minimum_variance(result_calc[0], result_calc[1])
-# print(type(minimi_var))
-# print("minimisation variance: ",minimi_var)
-#
+# print("optimisation SR - poids: ", optimi_SR[1]*100)
+# print("Perf Portfolio Optimisation SR", np.dot(result_calc[0],optimi_SR[1])*252*100," %")
 
 # Simulation porfolio
-portfolio_simulation(stock_list, start_d, stop_d, 20000)
+#---------------------
+#portfolio_simulation(stock_list, start_d, stop_d, 20000)
