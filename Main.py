@@ -1,11 +1,11 @@
 import datetime as dt
-
-import scipy.optimize
 import scipy.optimize as scy
 import numpy as np
 import pandas as pd
-import pandas_datareader as pdr
+#import pandas_datareader as pdr
 import yfinance as yf
+import matplotlib.pyplot as plt
+
 
 def fetch_stock_price(stocks, start_date, end_date):
 
@@ -17,13 +17,13 @@ def fetch_stock_price(stocks, start_date, end_date):
       OUTPUT:
             - stock_info : dataframe contenant les informations sur les actions """
 
-    stock_price = pdr.DataReader (stocks, data_source='stooq', start=start_date, end=end_date)
-    stock_price = stock_price[::-1]
+    stock_price = yf.download(stocks, start=start_date, end=end_date, progress=True)
     stock_price = stock_price['Close']
+    #stock_price_r = stock_price[::-1]
     return stock_price
 
 
-def calc_stock_returns(stock_list, start_date, end_date):
+def calc_stock_returns(stocks, start_date, end_date):
 
     """crée un dataframe contenant la moyenne des daily log_returns des actions
     INPUT:
@@ -34,9 +34,10 @@ def calc_stock_returns(stock_list, start_date, end_date):
           - moy_return : dataframe contenant les moyennes des log_returns journaliers
           - matrix_cov : dataframe contenant la matrice des variances/covariances des log_returns journaliers"""
 
-    stock_price = pdr.DataReader (stock_list, data_source='stooq', start=start_date, end=end_date)
-    stock_price = stock_price[::-1]
+    stock_price = yf.download(stocks, start=start_date, end=end_date, progress=True)
     stock_price = stock_price['Close']
+    #stock_price_r = stock_price[::-1]
+
 
     log_returns = np.log(stock_price / stock_price.shift(1))
     moy_log_return = log_returns.mean()
@@ -45,7 +46,7 @@ def calc_stock_returns(stock_list, start_date, end_date):
     return moy_log_return, matrix_cov
 #
 #
-def poids_random_stardardised(stock_list):
+def poids_random(stock_list):
 
     """ Crée un np.array de pondérations aléatoires standardisées (somme = 100%)
     On utilise à cette fin un générateur de nombre aléatoire [0,1]
@@ -58,6 +59,81 @@ def poids_random_stardardised(stock_list):
     poids /= np.sum(poids)
     return poids
 
+# def poids_random_short(stock_list):
+#
+#     """ Crée un np.array de pondérations aléatoires standardisées (somme = 100%)
+#     On utilise à cette fin un générateur de nombre aléatoire [0,1]
+#     INPUT:
+#         - stocks: liste des actions à pondérer
+#     OUTPUT:
+#         - poids: np.array contenant les pondérations aléatoires standardisées """
+#
+#     poids = np.random.Generator.normal(loc=0.0, scale=0.5, size=len(stock_list))
+#     return poids
+
+
+def portfolio_simulation(stocks, start, end, nb_sim):
+
+    returns = []
+    risk = []
+    s_ratio = []
+    poids_list = []
+    poids_list = []
+
+    moy_return = calc_stock_returns(stocks, start, end)[0]
+    cov_matrix = calc_stock_returns(stocks, start, end)[1]
+
+    for i in range(nb_sim):
+        poids_sim = poids_random(stocks)
+        returns.append(perf_portfolio(poids_sim, moy_return, cov_matrix)[0])
+        risk.append(perf_portfolio(poids_sim, moy_return, cov_matrix)[1])
+        s_ratio.append(-sharp_ratio_opp(poids_sim, moy_return, cov_matrix))
+        poids_list.append(poids_sim)
+
+    sim_data_df = pd.DataFrame ({"port_return": returns, "port_risk": risk, "sharp_ratio": s_ratio,
+                                 "allocation": poids_list})
+
+    top_s_ratio = sim_data_df["sharp_ratio"].argmax ()
+    allocation_optimale_df = pd.DataFrame(sim_data_df["allocation"][top_s_ratio])
+    allocation_optimale_df.index = stocks
+
+    print ("Le portefeuille ayant le plus grand ratio de sharpe est: ", allocation_optimale_df)
+    print ("Il a un return de ", round(sim_data_df["port_return"][top_s_ratio]*100,2), ", ")
+    print("et un ratio de sharpe de ", round(sim_data_df["sharp_ratio"][top_s_ratio],2))
+
+    # plot de la simulation :
+    sim_data_df.plot (x="port_risk", y="port_return", kind="scatter", c="sharp_ratio", s=9)
+
+    #print(sim_data_df)
+
+
+
+    #y_max_SR_pos = sim_data_df["port_return"][x_max_SR_pos]
+    #sim_data_df.plot(x= "port_risk"[x_max_SR_pos], y="port_return"[x_max_SR_pos], c='red', s=8)
+
+    # fig, ax = plt.subplots ()
+    # ax.scatter(sim_data_df["port_risk"], sim_data_df["port_return"], c=sim_data_df["s_ratio"])
+    # #ax.scatter(risk[sharp_ratio, returns[sharp_ratio.argmax()], c='r')
+    # ax.set_xlabel ("Volatilité")
+    # ax.set_ylabel ("Return")
+    plt.show()
+    return
+
+# def sim_plot():
+#
+#     fig, ax = plt.subplots()
+#     ax.scatter(df[], returns, c=sharp_ratio)
+#     #ax.scatter(risk[sharp_ratio, returns[sharp_ratio.argmax()], c='r')
+#     ax.set_xlabel("Volatilité")
+#     ax.set_ylabel("Return")
+#     plt.show()
+#
+#     # plt.scatter(risk, returns, c=sharp_ratio)
+#     # plt.title("Plot diagram : Risk - Return et Frontière efficace")
+#     # plt.xlabel("Risque du portefeuille (std)")
+#     # plt.ylabel("Retour du portefeuille")
+#     # plt.show()
+#     return
 
 def perf_portfolio(poids, moy_return, cov_matrix):
 
@@ -71,7 +147,7 @@ def perf_portfolio(poids, moy_return, cov_matrix):
         - risk_portfolio: un float égale au risque du return annuel pondéré du portefeuille """
 
     return_portfolio = np.sum(moy_return * poids) * 252
-    risk_porfolio = np.sqrt(np.dot(poids.T, np.dot(cov_matrix, poids))) * np.sqrt(252)
+    risk_porfolio = np.dot(np.dot(cov_matrix, poids),poids)**(1/2) * np.sqrt(252)
     return return_portfolio, risk_porfolio
 
 def variance_port(poids, moy_return, cov_matrix):
@@ -120,15 +196,15 @@ def minimum_variance(moy_return, cov_matrix, constraints_set=(0,1)):
     return result
 
 # MAIN-------------------------------------------------------------------------
-stock_list = ["MSFT", "IBM", "META", "V"]
-start_d = dt.datetime(2017, 1, 1)
-stop_d = dt.datetime(2017, 12, 31)
+stock_list = ["MSFT", "IBM", "META", "GOOG"]
+start_d = dt.datetime(2020, 1, 1)
+stop_d = dt.datetime(2020, 12, 31)
 
 price_matrix = fetch_stock_price(stock_list, start_d, stop_d)
 result_calc = calc_stock_returns(stock_list, start_d, stop_d)
-# print(price_matrix)
-#print(round(result_calc[1]*252*100,2))
-#print(round(result_calc[0]*252*100, 2))
+print(price_matrix)
+#print(result_calc)
+print(round(result_calc[0]*252*100, 2))
 
 
 #weights = poids_random_stardardised(stock_list)
@@ -137,17 +213,19 @@ result_calc = calc_stock_returns(stock_list, start_d, stop_d)
 #print("type port_perf: ", port_perf)
 #print(type(port_perf))
 
-optimi_SR = max_sharp_ratio(result_calc[0], result_calc[1])
-print(type(optimi_SR))
-print("optimisation SR :", optimi_SR[0])
+# optimi_SR = max_sharp_ratio(result_calc[0], result_calc[1])
+# print(type(optimi_SR))
+# print("optimisation SR :", optimi_SR[0])
+#
+# print("Poids Optimisation SR:")
+# print("optimisation SR - poids: ", optimi_SR[1])
+# print("Perf Portfolio Optimisation SR", np.dot(result_calc[0],optimi_SR[1]))
+#
+#
+# minimi_var = minimum_variance(result_calc[0], result_calc[1])
+# print(type(minimi_var))
+# print("minimisation variance: ",minimi_var)
+#
 
-print("Poids Optimisation SR:")
-print("optimisation SR - poids: ", optimi_SR[1])
-print("Perf Portfolio Optimisation SR", np.dot(result_calc[0],optimi_SR[1]))
-
-
-minimi_var = minimum_variance(result_calc[0], result_calc[1])
-print(type(minimi_var))
-print("minimiation variance: ",minimi_var)
-
-
+# Simulation porfolio
+portfolio_simulation(stock_list, start_d, stop_d, 20000)
