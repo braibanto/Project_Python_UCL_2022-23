@@ -40,7 +40,21 @@ def calc_stock_returns(stocks, start_date, end_date):
     matrix_cov = log_returns.cov()
 
     return moy_log_return, matrix_cov
-#
+
+def perf_portfolio(poids, moy_return, cov_matrix):
+
+    """ Calcul la performance annuelle et le risque du portefeuille en tenant compte de la pondération individuelle des actions
+     INPUT:
+        - poids: dataframe contenant les pondérations du portefeuille
+        - moy_return: dataframe contenant les moyennes journalières des actions
+        - cov_matrix: dataframe contenant la matrice var/cov des returns journaliers
+    OUTPUT:
+        - return_portfolio: un float égale au return annuel pondéré du portefeuille
+        - risk_portfolio: un float égale au risque du return annuel pondéré du portefeuille """
+
+    return_portfolio = np.sum(moy_return * poids) * 252
+    risk_porfolio = np.dot(np.dot(cov_matrix, poids),poids)**(1/2) * np.sqrt(252)
+    return return_portfolio, risk_porfolio
 #
 def poids_random(stock_list):
 
@@ -84,32 +98,63 @@ def portfolio_simulation(stocks, start, end, nb_sim):
         s_ratio.append(-sharp_ratio_opp(poids_sim, moy_return, cov_matrix))
         poids_list.append(poids_sim)
 
-    sim_data_df = pd.DataFrame({"port_return": returns, "port_risk": risk, "sharp_ratio": s_ratio,
-                                 "allocation": poids_list})
+    data_sim = {"returns": returns, "risque": risk, "sharpe_ratio": s_ratio}
 
-    max_s_ratio = sim_data_df["sharp_ratio"].argmax() # identifie l'indice de la simulation avec le + grand r_sharp
-    allocation_max_SR = sim_data_df["allocation"][max_s_ratio] # identifie l'allocation de la simulation avec le + grand r_sharp
+    for counter, symbol in enumerate (stocks):
+            # print(counter, symbol)
+        data_sim[symbol + " poids"] = [w[counter] for w in poids_list]
 
-    min_risk = sim_data_df["risk"].argmin()# identifie l'indice de la simulation avec le risque minimum
-    allocation_min_risk = sim_data_df["allocation"][min_risk]  # identifie l'allocation de la simulation avec risque minimum
+    portefeuilles_sim = pd.DataFrame(data_sim)
+    print(portefeuilles_sim.head())
 
-    print ("Le portefeuille ayant le plus grand ratio de sharpe est: ", np.round(allocation_max_SR*100,1))
-    print(" pour :", moy_return.index)
-    print ("Il a un return de ", round(sim_data_df["port_return"][max_s_ratio]*100,2), "%, ")
-    print("un ratio de sharpe de ", round(sim_data_df["sharp_ratio"][max_s_ratio],2))
-    print("un risque de ", sim_data_df["risk"][max_s_ratio])
-    print("    ")
+    #Identification du portefeuille à risque minimum:
+    min_risk_port = portefeuilles_sim.iloc[portefeuilles_sim["risque"].idxmin ()]
+    max_s_ratio_port = portefeuilles_sim.iloc[portefeuilles_sim["sharpe_ratio"].idxmax ()]
+    print("Voici le portefeuille à risque minimum: ")
+    print(min_risk_port)
+    print(" ")
+    print("Voici le portefeuille à ratio de Sharpe maximum: ")
+    print(max_s_ratio_port)
 
-    print ("Le portefeuille ayant le risque minimum: ", np.round (allocation_min_risk * 100, 1))
-    print (" pour :", moy_return.index)
-    print ("Il a un return de ", round (sim_data_df["port_return"][top_s_ratio] * 100, 2), "%, ")
-    print ("et un ratio de sharpe de ", round (sim_data_df["sharp_ratio"][top_s_ratio], 2))
-    print("un risque de ", sim_data_df["risk"][min_risk])
+    # Plot frontière efficace
+    plt.subplots (figsize=(20, 20))
+    plt.scatter (portefeuilles_sim["risque"], portefeuilles_sim['returns'], c=portefeuilles_sim["sharpe_ratio"], marker='o', s=10, alpha=0.3)
+    plt.scatter(min_risk_port[1], min_risk_port[0], color='r', marker='*', s=500)
+    plt.scatter(max_s_ratio_port[1], max_s_ratio_port[0], color='g', marker='*', s=500)
+    plt.show ()
 
-    # plot de la simulation :
-    sim_data_df.plot (x="port_risk", y="port_return", kind="scatter", c="sharp_ratio", s=9)
 
-    #print(sim_data_df)
+
+
+    # #sim_data_df = pd.DataFrame({"port_return": returns, "port_risk": risk, "sharp_ratio": s_ratio,
+    #                              "allocation": poids_list})
+    #
+    # max_s_ratio = sim_data_df["sharp_ratio"].argmax() # identifie l'indice de la simulation avec le + grand r_sharp
+    # allocation_max_SR = sim_data_df["allocation"][max_s_ratio] # identifie l'allocation de la simulation avec le + grand r_sharp
+    #
+    # min_risk = sim_data_df["port_risk"].argmin()# identifie l'indice de la simulation avec le risque minimum
+    # allocation_min_risk = sim_data_df["allocation"][min_risk]  # identifie l'allocation de la simulation avec risque minimum
+    #
+    # print("RESULTAT de la SIMULATION")
+    # print("-------------------------")
+    # print("   ")
+    # print ("Le portefeuille ayant le plus grand ratio de sharpe est: ", np.round(allocation_max_SR*100,1))
+    # print(" pour :", moy_return.index)
+    # print ("Il a un return de ", round(sim_data_df["port_return"][max_s_ratio]*100,2), "%, ")
+    # print("un ratio de sharpe de ", round(sim_data_df["sharp_ratio"][max_s_ratio],2))
+    # print("un risque de ", sim_data_df["port_risk"][max_s_ratio])
+    # print("    ")
+    #
+    # print ("Le portefeuille ayant le risque minimum: ", np.round (allocation_min_risk * 100, 1))
+    # print (" pour :", moy_return.index)
+    # print ("Il a un return de ", round (sim_data_df["port_return"][min_risk] * 100, 2), "%, ")
+    # print ("et un ratio de sharpe de ", round (sim_data_df["sharp_ratio"][min_risk], 2))
+    # print("un risque de ", sim_data_df["port_risk"][min_risk])
+    #
+    # # plot de la simulation :
+    # sim_data_df.plot (x="port_risk", y="port_return", kind="scatter", c="sharp_ratio", s=9)
+    #
+    # #print(sim_data_df)
 
 
 
@@ -121,7 +166,7 @@ def portfolio_simulation(stocks, start, end, nb_sim):
     # #ax.scatter(risk[sharp_ratio, returns[sharp_ratio.argmax()], c='r')
     # ax.set_xlabel ("Volatilité")
     # ax.set_ylabel ("Return")
-    plt.show()
+    #plt.show()
     return
 
 # def sim_plot():
@@ -140,20 +185,7 @@ def portfolio_simulation(stocks, start, end, nb_sim):
 #     # plt.show()
 #     return
 
-def perf_portfolio(poids, moy_return, cov_matrix):
 
-    """ Calcul la performance annuelle et le risque du portefeuille en tenant compte de la pondération individuelle des actions
-     INPUT:
-        - poids: dataframe contenant les pondérations du portefeuille
-        - moy_return: dataframe contenant les moyennes journalières des actions
-        - cov_matrix: dataframe contenant la matrice var/cov des returns journaliers
-    OUTPUT:
-        - return_portfolio: un float égale au return annuel pondéré du portefeuille
-        - risk_portfolio: un float égale au risque du return annuel pondéré du portefeuille """
-
-    return_portfolio = np.sum(moy_return * poids) * 252
-    risk_porfolio = np.dot(np.dot(cov_matrix, poids),poids)**(1/2) * np.sqrt(252)
-    return return_portfolio, risk_porfolio
 
 def variance_port(poids, moy_return, cov_matrix):
     return perf_portfolio(poids, moy_return, cov_matrix)[1]
@@ -238,4 +270,4 @@ result_calc = calc_stock_returns(stock_list, start_d, stop_d)
 
 # Simulation porfolio
 #---------------------
-#portfolio_simulation(stock_list, start_d, stop_d, 20000)
+portfolio_simulation(stock_list, start_d, stop_d, 20000)
