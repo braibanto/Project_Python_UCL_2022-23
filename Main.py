@@ -30,25 +30,6 @@ def calc_stock_data(stocks, start_date, end_date):
 
     return returns, matrix_cov, stock_price
 
-# def calc_stock_returns(stocks, start_date, end_date):
-#
-#     """crée un dataframe contenant la moyenne des daily log_returns des actions
-#     INPUT:
-#           - stock : ticker des actions dans le scope de cette analyse (list of strings)
-#           - start_date : date de début (utilise le module datetime as dt)
-#           - end_date : date de fin (utilise le module datetime as dt)
-#     OUTPUT:
-#           - moy_return : dataframe contenant les moyennes des log_returns journaliers
-#           - matrix_cov : dataframe contenant la matrice des variances/covariances des log_returns journaliers"""
-#
-#     stock_price = yf.download(stocks, start=start_date, end=end_date, progress=True)
-#     stock_price = stock_price['Close']
-#
-#     log_returns = np.log(stock_price / stock_price.shift(1))
-#     moy_log_return = log_returns.mean()
-#     matrix_cov = log_returns.cov()
-#
-#     return moy_log_return, matrix_cov
 
 def perf_portfolio(poids, returns, cov_matrix):
 
