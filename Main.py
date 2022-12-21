@@ -250,23 +250,23 @@ def minimum_variance(returns, cov_matrix, constraints_set=(0,1)):
 
     return
 
-def return_for_risk_fixed(risk_fixed, returns, cov_matrix, constraints_set=(0,1)):
-    long_port = len (returns)
-    init_guess = long_port * [1. / long_port]
-    args = (returns, cov_matrix, ss_risque)
-    constraints = ({'type': 'eq', 'fun': lambda x: np.sum (x) - 1})
-    bound = constraints_set
-    bounds = tuple (bound for asset in range (long_port))
-    result = scy.minimize (sharp_ratio_opp, init_guess, args=args, method='SLSQP',
-                           bounds=bounds, constraints=constraints)
-
-    poids_result_df = pd.DataFrame (result['x'], index=returns.index, columns=['poids'])
-    ret_port_opt = np.dot (returns, poids_result_df["poids"]) * 252 * 100
-
-    print ("Optimisation réalisée. Sharp Ratio optimisé = ", -result.fun)
-    print ("Poids optimisation - Sharp Ratio :", poids_result_df * 100)
-    # print ("optimisation SR - poids: ", optimi_SR[1] * 100)
-    print ("Perf Portfolio Optimisation SR", round (ret_port_opt, 2), " %")
+# def return_for_risk_fixed(risk_fixed, returns, cov_matrix, constraints_set=(0,1)):
+#     long_port = len (returns)
+#     init_guess = long_port * [1. / long_port]
+#     args = (returns, cov_matrix, ss_risque)
+#     constraints = ({'type': 'eq', 'fun': lambda x: np.sum (x) - 1})
+#     bound = constraints_set
+#     bounds = tuple (bound for asset in range (long_port))
+#     result = scy.minimize (sharp_ratio_opp, init_guess, args=args, method='SLSQP',
+#                            bounds=bounds, constraints=constraints)
+#
+#     poids_result_df = pd.DataFrame (result['x'], index=returns.index, columns=['poids'])
+#     ret_port_opt = np.dot (returns, poids_result_df["poids"]) * 252 * 100
+#
+#     print ("Optimisation réalisée. Sharp Ratio optimisé = ", -result.fun)
+#     print ("Poids optimisation - Sharp Ratio :", poids_result_df * 100)
+#     # print ("optimisation SR - poids: ", optimi_SR[1] * 100)
+#     print ("Perf Portfolio Optimisation SR", round (ret_port_opt, 2), " %")
 
 def random_walk(stocks, start_date, end_date, nb_sim, nb_walk):
     """
