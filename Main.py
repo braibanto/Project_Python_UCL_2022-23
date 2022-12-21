@@ -2,7 +2,6 @@ import datetime as dt
 import scipy.optimize as scy
 import numpy as np
 import pandas as pd
-#import pandas_datareader as pdr
 import yfinance as yf
 import matplotlib.pyplot as plt
 
@@ -24,12 +23,11 @@ def calc_stock_data(stocks, start_date, end_date):
     stock_price = yf.download(stocks, start=start_date, end=end_date, progress=True)
     stock_price = stock_price['Close']
 
-    log_returns = np.log (stock_price / stock_price.shift (1))
+    log_returns = np.log(stock_price / stock_price.shift (1))
     returns = log_returns.mean()
     matrix_cov = log_returns.cov()
 
     return returns, matrix_cov, stock_price
-
 
 def perf_portfolio(poids, returns, cov_matrix):
 
@@ -50,7 +48,6 @@ def perf_portfolio(poids, returns, cov_matrix):
     return return_port, risk_port
 #
 def poids_random(stocks):
-
     """
     Crée un np.array avec des pondérations aléatoires standardisées (somme = 1)
     :param stocks: liste (string) contenant les actions du portefeuille
@@ -62,9 +59,7 @@ def poids_random(stocks):
     poids /= np.sum(poids)
     return poids
 
-
 def portfolio_mc_simulation(stocks, start, end, nb_sim):
-
     """
     simulation de Monte Carlo: réaliser une simulation Monte-Carlo afin de sonder l'espace retour-volatilité pour
     des portefeuilles composés d'actions.
@@ -74,7 +69,7 @@ def portfolio_mc_simulation(stocks, start, end, nb_sim):
     - La fonction dessine un scatter plot de chaque simulation dans l'espace risque/return
 
     :param stocks : liste (of strings) contenant les actions du portefeuille
-    :param start_date : date de début (utilise le module datetime as dt)
+    :param start : date de début (utilise le module datetime as dt)
     param end_date : date de fin (utilise le module datetime as dt)
     :param nb_sim : nombre de simulations
 
@@ -125,11 +120,9 @@ def portfolio_mc_simulation(stocks, start, end, nb_sim):
 
     return
 
-
 def variance_port(poids, moy_return, cov_matrix):
-
     """
-    Cette fonction est utilisée uniquement dans le cadre de la fonction d'optimisation "minimum_variance"
+    Cette fonction est utilisée uniquement dans le cadre de la fonction d'optimisation 'minimum_variance'
 
     :param poids: array/DF contenant les pondérations du portefeuille
     :param moy_return: array/DF contenant le return journalier moyen des actions
@@ -140,15 +133,13 @@ def variance_port(poids, moy_return, cov_matrix):
 
     return perf_portfolio(poids, moy_return, cov_matrix)[1]
 
-
 def sharp_ratio_opp(poids, returns, cov_matrix, ss_risque=0):
-
     """
     Calcul du Sharp ratio (négatif ! afin d'utiliser la fonction scipy.optimize.minimize de la librairie SciPy)
     d'un portefeuille pour une pondération donnée.
 
     :param poids: np.array contenant la pondération des actions
-    :param stock_return: array contenant la moyenne
+    :param return: array contenant la moyenne
 
     :return -sharp_ratio contenant la valeur negative du sharp ratio
     """
@@ -182,9 +173,9 @@ def max_sharp_ratio(returns, cov_matrix, ss_risque=0, constraints_set=(0,1)):
     poids_result_df = pd.DataFrame(result['x'], index=returns.index, columns=['poids'])
     ret_port_opt = np.dot (returns, poids_result_df["poids"]) * 252 * 100
 
-    print("Optimisation réalisée. Sharp Ratio optimisé = ",-result.fun)
+    print("Optimisation réalisée avec Sharp Ratio optimisé = ",-result.fun)
     print ("Poids optimisation - Sharp Ratio :", poids_result_df * 100)
-    print ("Perf Portfolio Optimisation SR", round(ret_port_opt,2), " %")
+    print ("Return Portfolio Optimisation Sharp Ratio", round(ret_port_opt,2), " %")
 
     return
 
@@ -218,7 +209,6 @@ def minimum_variance(returns, cov_matrix, constraints_set=(0,1)):
     print ("Sharp Ratio du portefeuille de Risque Minimum: ", -sharp_ratio_opp(poids_result_df["poids"], returns, cov_matrix))
 
     return
-
 
 def random_walk(stocks, start_date, end_date, nb_sim, nb_walk):
     """
@@ -309,32 +299,20 @@ def random_walk(stocks, start_date, end_date, nb_sim, nb_walk):
     return
 
 # MAIN-------------------------------------------------------------------------
-stock_list = ["MSFT", "IBM", "META", "GOOG", "V", "JNJ"]
+stock_list = ["MSFT", "IBM", "META", "GOOG", "V", "JNJ", "PG"]
 start_d = dt.datetime(2020, 1, 1)
 stop_d = dt.datetime(2020, 12, 31)
+result_calc = calc_stock_data(stock_list, start_d, stop_d)
 
-#result_calc = calc_stock_data(stock_list, start_d, stop_d)
-
-#test Random Walk
+# Test Random Walk
 #------------------
-random_walk(stock_list, start_d, stop_d, 20000, 100)
-
-
-#print(price_matrix)
-#print(result_calc)
-#print(round(result_calc[0]*252*100, 2))
-
-
-#weights = poids_random_stardardised(stock_list)
-#port_perf = perf_portfolio(weights, result_calc[0], result_calc[1])
-#print("poids: : ", weights)
-#print("type port_perf: ", port_perf)
-#print(type(port_perf))
-
-
+#random_walk(stock_list, start_d, stop_d, 40000, 100)
 #
-# Optimisation function
+# Test Optimisation function
 # ----------------------
+
+#Test minimum_variance
+#---------------------
 #minimi_var = minimum_variance(result_calc[0], result_calc[1])
 # print(type(minimi_var))
 # print("minimisation variance: ", minimi_var)
@@ -342,13 +320,11 @@ random_walk(stock_list, start_d, stop_d, 20000, 100)
 # print("optimisation Var - poids: ", minimi_var[1]*100)
 # print("Perf Portfolio Minimimum Var", np.dot(result_calc[0], minimi_var[1])*252*100, " %")
 
-#optimi_SR = max_sharp_ratio(result_calc[0], result_calc[1])
-# print(type(optimi_SR))
-# print("optimisation SR :", optimi_SR[0])
-# print("Poids Optimisation SR:")
-# print("optimisation SR - poids: ", optimi_SR[1]*100)
-# print("Perf Portfolio Optimisation SR", np.dot(result_calc[0],optimi_SR[1])*252*100," %")
 
-# Simulation porfolio
-#---------------------
-#portfolio_simulation(stock_list, start_d, stop_d, 20000)
+#Test max_sharp_ratio
+#--------------------
+#optimi_SR = max_sharp_ratio(result_calc[0], result_calc[1])
+
+
+# Test Simulation Monte Carlo
+portfolio_mc_simulation(stock_list, start_d, stop_d, 20000)
