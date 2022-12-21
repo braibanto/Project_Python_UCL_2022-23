@@ -62,18 +62,6 @@ def poids_random(stocks):
     poids /= np.sum(poids)
     return poids
 
-# def poids_random_short(stock_list):
-#
-#     """ Crée un np.array de pondérations aléatoires standardisées (somme = 100%)
-#     On utilise à cette fin un générateur de nombre aléatoire [0,1]
-#     INPUT:
-#         - stocks: liste des actions à pondérer
-#     OUTPUT:
-#         - poids: np.array contenant les pondérations aléatoires standardisées """
-#
-#     poids = np.random.Generator.normal(loc=0.0, scale=0.5, size=len(stock_list))
-#     return poids
-
 
 def portfolio_mc_simulation(stocks, start, end, nb_sim):
 
