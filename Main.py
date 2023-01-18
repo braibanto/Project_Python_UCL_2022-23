@@ -91,10 +91,12 @@ def portfolio_mc_simulation(stocks, start, end, nb_sim):
         s_ratio.append(-1 * sharp_ratio_opp(poids_sim, moy_return, cov_matrix))
         poids_list.append(poids_sim)
 
+    #construction du dataframe data_sim sur base des dataframes (vecteurs) ci-dessus
     data_sim = {"returns": returns, "risque": risk, "sharpe_ratio": s_ratio}
 
+    # Je rajoute au dataframe data_sim les colonnes ("ticker + "poids") qui donnent le poids de chaque actions dans la
+    # simulation
     for counter, symbol in enumerate (stocks):
-            # print(counter, symbol)
         data_sim[symbol + " poids"] = [w[counter] for w in poids_list]
 
     portefeuilles_sim = pd.DataFrame(data_sim)
@@ -210,7 +212,7 @@ def minimum_variance(returns, cov_matrix, constraints_set=(0,1)):
 
     return
 
-def random_walk(stocks, start_date, end_date, nb_sim, nb_walk):
+def random_walk(stocks, start_date, end_date, nb_walk):
     """
     Cette fonction va exécuter un Random Walk sur les prix des actions pour une période de 252 jours en partant du
     dernier prix connu de chaque action. Elle va ensuite exécuter une simulation de Monte Carlo sur base des prix
@@ -299,7 +301,7 @@ def random_walk(stocks, start_date, end_date, nb_sim, nb_walk):
     return
 
 # MAIN-------------------------------------------------------------------------
-stock_list = ["MSFT", "IBM", "META", "GOOG", "V", "JNJ", "PG"]
+stock_list = ["MSFT", "IBM", "META", "GOOG", "V", "JNJ", "PG", "TSLA", "GS"]
 start_d = dt.datetime(2020, 1, 1)
 stop_d = dt.datetime(2020, 12, 31)
 result_calc = calc_stock_data(stock_list, start_d, stop_d)
