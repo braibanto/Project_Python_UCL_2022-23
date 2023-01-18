@@ -159,7 +159,7 @@ def sharp_ratio_opp(poids, returns, cov_matrix, ss_risque=0):
 
 def max_sharp_ratio(returns, cov_matrix, ss_risque=0, constraints_set=(0, 1)):
     """
-    Cette fonction calcule le portefeuille avec le ratio de Sharp maximum en utilisant un algorythme de minimisation
+    Cette fonction calcule le portefeuille avec le ratio de Sharp maximum en utilisant un algorithme de minimisation
     sous contraintes de la librairie SciPY.
 
     :param returns: array/DF contenant le return journalier moyen des actions
@@ -173,13 +173,13 @@ def max_sharp_ratio(returns, cov_matrix, ss_risque=0, constraints_set=(0, 1)):
     long_port = len(returns)
     init_guess = long_port*[1./long_port]
     args = (returns, cov_matrix, ss_risque)
-    constraints = ({'type': 'eq', 'fun': lambda x: np.sum(x) - 1})
+    constraints = ({"type": "eq", "fun": lambda x: np.sum(x) - 1})
     bound = constraints_set
     bounds = tuple(bound for asset in range(long_port))
-    result = scy.minimize(sharp_ratio_opp, init_guess, args=args, method='SLSQP', bounds=bounds,
+    result = scy.minimize(sharp_ratio_opp, init_guess, args=args, method="SLSQP", bounds=bounds,
                           constraints=constraints)
 
-    poids_result_df = pd.DataFrame(result['x'], index=returns.index, columns=['poids'])
+    poids_result_df = pd.DataFrame(result['x'], index=returns.index, columns=["poids"])
     ret_port_opt = np.dot(returns, poids_result_df["poids"]) * 252 * 100
 
     print("Optimisation réalisée avec Sharp Ratio optimisé = ", -result.fun)
@@ -207,13 +207,13 @@ def minimum_variance(returns, cov_matrix, constraints_set=(0, 1)):
     long_port = len(returns)
     init_guess = long_port*[1./long_port]
     args = (returns, cov_matrix)
-    constraints = ({'type': 'eq', 'fun': lambda x: np.sum(x) - 1})
+    constraints = ({"type": "eq", "fun": lambda x: np.sum(x) - 1})
     bound = constraints_set
     bounds = tuple(bound for asset in range(long_port))
-    result = scy.minimize(variance_port, init_guess, args=args, method='SLSQP',
+    result = scy.minimize(variance_port, init_guess, args=args, method="SLSQP",
                           bounds=bounds, constraints=constraints)
 
-    poids_result_df = pd.DataFrame(result['x'], index=returns.index, columns=['poids'])
+    poids_result_df = pd.DataFrame(result['x'], index=returns.index, columns=["poids"])
     ret_port_opt = np.dot(returns, poids_result_df["poids"]) * 252 * 100
 
     print("Optimisation réalisée. Risque du portefeuille:  ", result.fun)
