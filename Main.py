@@ -191,11 +191,11 @@ def max_sharp_ratio(returns, cov_matrix, ss_risque=0, constraints_set=(0, 1)):
 
     print("")
     print ("Optimisation sous contrainte (Maximisation du SR): ")
-    print ("-------------------------------------------------------")
+    print ("--------------------------------------------------")
     print("")
-    print ("Optimisation réalisée,  SR du portefeuille:  ", -result.fun)
+    print ("Optimisation réalisée,  Sharp ratio du portefeuille:  ", -result.fun)
     print ("Return du portefeuille Max SR ", round (ret_port_opt, 2), " %")
-    print ("Sharp Ratio du portefeuille SR Maximum: ", -sharp_ratio_opp (poids_result_df["poids"], returns,
+    print ("Sharp Ratio du portefeuille Max SR: ", -sharp_ratio_opp (poids_result_df["poids"], returns,
                                                                                 cov_matrix))
     print("")
     print ("Poids des actions : ", poids_result_df)
@@ -232,8 +232,8 @@ def minimum_variance(returns, cov_matrix, constraints_set=(0, 1)):
     print("-------------------------------------------------------")
     print("")
     print("Optimisation réalisée, risque du portefeuille:  ", result.fun)
-    print("Return du portefeuille de Risque Minimum ", round(ret_port_opt, 2), " %")
-    print("Sharp Ratio du portefeuille de Risque Minimum: ", -sharp_ratio_opp(poids_result_df["poids"], returns,
+    print("Return du portefeuille de risque Minimum ", round(ret_port_opt, 2), " %")
+    print("Sharp Ratio du portefeuille de risque Minimum: ", -sharp_ratio_opp(poids_result_df["poids"], returns,
           cov_matrix))
     print("")
     print("Poids des actions : ", poids_result_df)
@@ -292,7 +292,10 @@ def random_walk(stocks, start_date, end_date, nb_sim, nb_walk):
         asset_price_arr = asset_price_arr/nb_walk
         data_sim_price[asset] = asset_price_arr
 
+    print("")
+    print('')
     print("Nouvelle matrice de prix des actions après un random walk de 252 jours): ")
+    print("")
     print(data_sim_price)
     print("")
     print("Simulation de Monte Carlo avec ces nouveaux prix: ")
@@ -353,20 +356,20 @@ result_calc = calc_stock_data(stock_list, start_d, stop_d)
 
 # 1) Test Simulation Monte Carlo
 # -----------------------------
-# portfolio_mc_simulation(stock_list, start_d, stop_d, 20000)
+# portfolio_mc_simulation(stock_list, start_d, stop_d, 40000)
 
 # 2) Test Random Walk
 # ------------------
-# random_walk(stock_list, start_d, stop_d, 40000, 100)
+random_walk(stock_list, start_d, stop_d, 60000, 500)
 
 
 # 3) Test Optimisation sous contrainte
 # ------------------------------------
 #   a) Test minimum_variance
 #      ---------------------
-minimi_var = minimum_variance(result_calc[0], result_calc[1])
+# minimi_var = minimum_variance(result_calc[0], result_calc[1])
 
 #   b) Test max_sharp_ratio
 #   -----------------------
-#optimi_SR = max_sharp_ratio(result_calc[0], result_calc[1])
+# optimi_SR = max_sharp_ratio(result_calc[0], result_calc[1])
 # --------------------------------------------------------------
