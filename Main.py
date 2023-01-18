@@ -23,11 +23,12 @@ def calc_stock_data(stocks, start_date, end_date):
     stock_price = yf.download(stocks, start=start_date, end=end_date, progress=True)
     stock_price = stock_price['Close']
 
-    log_returns = np.log(stock_price / stock_price.shift (1))
+    log_returns = np.log(stock_price / stock_price.shift(1))
     returns = log_returns.mean()
     matrix_cov = log_returns.cov()
 
     return returns, matrix_cov, stock_price
+
 
 def perf_portfolio(poids, returns, cov_matrix):
 
@@ -44,9 +45,10 @@ def perf_portfolio(poids, returns, cov_matrix):
     """
 
     return_port = np.sum(returns * poids) * 252
-    risk_port = np.dot(np.dot(cov_matrix, poids),poids)**(1/2) * np.sqrt(252)
+    risk_port = np.dot(np.dot(cov_matrix, poids), poids)**(1/2) * np.sqrt(252)
     return return_port, risk_port
-#
+
+
 def poids_random(stocks):
     """
     Crée un np.array avec des pondérations aléatoires standardisées (somme = 1)
@@ -59,6 +61,7 @@ def poids_random(stocks):
     poids /= np.sum(poids)
     return poids
 
+
 def portfolio_mc_simulation(stocks, start, end, nb_sim):
     """
     simulation de Monte Carlo: réaliser une simulation Monte-Carlo afin de sonder l'espace retour-volatilité pour
@@ -70,7 +73,7 @@ def portfolio_mc_simulation(stocks, start, end, nb_sim):
 
     :param stocks : liste (of strings) contenant les actions du portefeuille
     :param start : date de début (utilise le module datetime as dt)
-    param end_date : date de fin (utilise le module datetime as dt)
+    :param end : date de fin (utilise le module datetime as dt)
     :param nb_sim : nombre de simulations
 
     :return NONE
@@ -91,36 +94,37 @@ def portfolio_mc_simulation(stocks, start, end, nb_sim):
         s_ratio.append(-1 * sharp_ratio_opp(poids_sim, moy_return, cov_matrix))
         poids_list.append(poids_sim)
 
-    #construction du dataframe data_sim sur base des dataframes (vecteurs) ci-dessus
+    # construction du dataframe data_sim sur base des dataframes (vecteurs) ci-dessus
     data_sim = {"returns": returns, "risque": risk, "sharpe_ratio": s_ratio}
 
     # Je rajoute au dataframe data_sim les colonnes ("ticker + "poids") qui donnent le poids de chaque actions dans la
     # simulation
-    for counter, symbol in enumerate (stocks):
+    for counter, symbol in enumerate(stocks):
         data_sim[symbol + " poids"] = [w[counter] for w in poids_list]
 
     portefeuilles_sim = pd.DataFrame(data_sim)
     print(portefeuilles_sim.head())
 
-    #Identification du portefeuille à risque minimum:
-    min_risk_port = portefeuilles_sim.iloc[portefeuilles_sim["risque"].idxmin ()]
-    max_s_ratio_port = portefeuilles_sim.iloc[portefeuilles_sim["sharpe_ratio"].idxmax ()]
+    # Identification du portefeuille à risque minimum:
+    min_risk_port = portefeuilles_sim.iloc[portefeuilles_sim["risque"].idxmin()]
+    max_s_ratio_port = portefeuilles_sim.iloc[portefeuilles_sim["sharpe_ratio"].idxmax()]
     print("Voici le portefeuille à risque minimum: ")
     print(min_risk_port)
     print(" ")
     print("Voici le portefeuille à ratio de Sharpe maximum: ")
     print(max_s_ratio_port)
 
-    #Plot Simulation:
+    # Plot Simulation:
 
-    plt.subplots (figsize=(20, 20))
-    plt.scatter (portefeuilles_sim["risque"], portefeuilles_sim['returns'], c=portefeuilles_sim["sharpe_ratio"],
-                 cmap="viridis", marker='o', s=10, alpha=0.3)
+    plt.subplots(figsize=(20, 20))
+    plt.scatter(portefeuilles_sim["risque"], portefeuilles_sim['returns'], c=portefeuilles_sim["sharpe_ratio"],
+                cmap="viridis", marker='o', s=10, alpha=0.3)
     plt.scatter(min_risk_port[1], min_risk_port[0], color='r', marker='*', s=500)
     plt.scatter(max_s_ratio_port[1], max_s_ratio_port[0], color='g', marker='*', s=500)
-    plt.show ()
+    plt.show()
 
     return
+
 
 def variance_port(poids, moy_return, cov_matrix):
     """
@@ -135,14 +139,16 @@ def variance_port(poids, moy_return, cov_matrix):
 
     return perf_portfolio(poids, moy_return, cov_matrix)[1]
 
+
 def sharp_ratio_opp(poids, returns, cov_matrix, ss_risque=0):
     """
     Calcul du Sharp ratio (négatif ! afin d'utiliser la fonction scipy.optimize.minimize de la librairie SciPy)
     d'un portefeuille pour une pondération donnée.
 
     :param poids: np.array contenant la pondération des actions
-    :param return: array contenant la moyenne
-
+    :param returns: array contenant la moyenne
+    :param cov_matrix: array/DF contenant la matrice var/cov des returns journaliers
+    :param ss_risque: taux sans risque
     :return -sharp_ratio contenant la valeur negative du sharp ratio
     """
 
@@ -150,7 +156,8 @@ def sharp_ratio_opp(poids, returns, cov_matrix, ss_risque=0):
     sharp_ratio = (p_ret - ss_risque) / r_port
     return - sharp_ratio
 
-def max_sharp_ratio(returns, cov_matrix, ss_risque=0, constraints_set=(0,1)):
+
+def max_sharp_ratio(returns, cov_matrix, ss_risque=0, constraints_set=(0, 1)):
     """
     Cette fonction calcule le portefeuille avec le ratio de Sharp maximum en utilisant un algorythme de minimisation sous
     contraintes de la librairie SciPY.
@@ -169,22 +176,22 @@ def max_sharp_ratio(returns, cov_matrix, ss_risque=0, constraints_set=(0,1)):
     constraints = ({'type': 'eq', 'fun': lambda x: np.sum(x) - 1})
     bound = constraints_set
     bounds = tuple(bound for asset in range(long_port))
-    result = scy.minimize(sharp_ratio_opp, init_guess, args=args, method='SLSQP',
-                                     bounds=bounds, constraints=constraints)
+    result = scy.minimize(sharp_ratio_opp, init_guess, args=args, method='SLSQP', bounds=bounds, constraints=constraints)
 
     poids_result_df = pd.DataFrame(result['x'], index=returns.index, columns=['poids'])
-    ret_port_opt = np.dot (returns, poids_result_df["poids"]) * 252 * 100
+    ret_port_opt = np.dot(returns, poids_result_df["poids"]) * 252 * 100
 
-    print("Optimisation réalisée avec Sharp Ratio optimisé = ",-result.fun)
-    print ("Poids des actions:")
+    print("Optimisation réalisée avec Sharp Ratio optimisé = ", -result.fun)
+    print("Poids des actions:")
     print("------------------")
     print(poids_result_df * 100)
     print("")
-    print ("Return Portfolio Optimisation Sharp Ratio", round(ret_port_opt,2), " %")
+    print("Return Portfolio Optimisation Sharp Ratio", round(ret_port_opt, 2), " %")
 
     return
 
-def minimum_variance(returns, cov_matrix, constraints_set=(0,1)):
+
+def minimum_variance(returns, cov_matrix, constraints_set=(0, 1)):
     """
     Cette fonction calcule le portefeuille avec le risque minimum en utilisant un algorithme de minimisation sous
     contraintes de la librairie SciPY.
@@ -203,18 +210,19 @@ def minimum_variance(returns, cov_matrix, constraints_set=(0,1)):
     bound = constraints_set
     bounds = tuple(bound for asset in range(long_port))
     result = scy.minimize(variance_port, init_guess, args=args, method='SLSQP',
-                           bounds=bounds, constraints=constraints)
+                          bounds=bounds, constraints=constraints)
 
-    poids_result_df = pd.DataFrame (result['x'], index=returns.index, columns=['poids'])
-    ret_port_opt = np.dot (returns, poids_result_df["poids"]) * 252 * 100
+    poids_result_df = pd.DataFrame(result['x'], index=returns.index, columns=['poids'])
+    ret_port_opt = np.dot(returns, poids_result_df["poids"]) * 252 * 100
 
-    print ("Optimisation réalisée. Risque du portefeuille:  ", result.fun)
-    print ("Return du portefeuille de Risque Minimum ", round (ret_port_opt, 2), " %")
-    print ("Sharp Ratio du portefeuille de Risque Minimum: ", -sharp_ratio_opp(poids_result_df["poids"], returns, cov_matrix))
-    print ("Poids des actions : ", poids_result_df)
+    print("Optimisation réalisée. Risque du portefeuille:  ", result.fun)
+    print("Return du portefeuille de Risque Minimum ", round(ret_port_opt, 2), " %")
+    print("Sharp Ratio du portefeuille de Risque Minimum: ", -sharp_ratio_opp(poids_result_df["poids"], returns, cov_matrix))
+    print("Poids des actions : ", poids_result_df)
     print("")
 
     return
+
 
 def random_walk(stocks, start_date, end_date, nb_sim, nb_walk):
     """
@@ -237,23 +245,32 @@ def random_walk(stocks, start_date, end_date, nb_sim, nb_walk):
     """
 
     data_sim_price = pd.DataFrame(columns=stocks)
-    price_df = calc_stock_data(stocks, start_date, end_date)[2]  #je récupère le dataframe des prix des actions
+
+    # je récupère le dataframe des prix des actions
+    price_df = calc_stock_data(stocks, start_date, end_date)[2]
     print("Prix de départ des actions pour le Random Walk")
     print("----------------------------------------------")
     print(price_df.iloc[-1])
 
     for asset in stocks:
-        returns = np.log(1+price_df[asset].pct_change())
-        mu, sigma = returns.mean(), returns.std()
+        # boucle sur les actions
+        returns = np.log(1 + price_df[asset].pct_change())  # calcul des returns journaliers des prix
+        mu, sigma = returns.mean(), returns.std()  # calcul de mu et sigma pour la random walk
         sim_price_arr = np.empty([252])
         asset_price_arr = np.empty([252])
 
         for i in range(nb_walk):
+            # boucle sur le nombre de simulations par action
             sim_ret = np.random.normal(mu, sigma, 252)
             initial = price_df[asset].iloc[-1]
+
+            # calcul du prix de l'action en utilisant les returns aléatoires
             sim_price_arr = initial * (sim_ret + 1).cumprod()
+
+            # prix cumulés des actifs
             asset_price_arr = np.add(asset_price_arr, sim_price_arr)
 
+        # correction des prix cumulés en fct du nbre de andom walk
         asset_price_arr = asset_price_arr/nb_walk
         data_sim_price[asset] = asset_price_arr
 
@@ -266,74 +283,72 @@ def random_walk(stocks, start_date, end_date, nb_sim, nb_walk):
     risk = []
     s_ratio = []
     poids_list = []
-    log_returns = np.log (data_sim_price / data_sim_price.shift(1))
+    log_returns = np.log(data_sim_price / data_sim_price.shift(1))
     moy_return = log_returns.mean()
     cov_matrix = log_returns.cov()
 
-    for i in range (nb_sim):
-        poids_sim = poids_random (stocks)
-        returns.append (perf_portfolio (poids_sim, moy_return, cov_matrix)[0])
-        risk.append (perf_portfolio (poids_sim, moy_return, cov_matrix)[1])
-        s_ratio.append (-1 * sharp_ratio_opp(poids_sim, moy_return, cov_matrix))
-        poids_list.append (poids_sim)
+    for i in range(nb_sim):
+        poids_sim = poids_random(stocks)
+        returns.append(perf_portfolio(poids_sim, moy_return, cov_matrix)[0])
+        risk.append(perf_portfolio(poids_sim, moy_return, cov_matrix)[1])
+        s_ratio.append(-1 * sharp_ratio_opp(poids_sim, moy_return, cov_matrix))
+        poids_list.append(poids_sim)
 
     data_sim = {"returns": returns, "risque": risk, "sharpe_ratio": s_ratio}
 
-    for counter, symbol in enumerate (stocks):
+    for counter, symbol in enumerate(stocks):
         # print(counter, symbol)
         data_sim[symbol + " poids"] = [w[counter] for w in poids_list]
 
-    portefeuilles_sim = pd.DataFrame (data_sim)
-    print (portefeuilles_sim.head ())
+    portefeuilles_sim = pd.DataFrame(data_sim)
+    print(portefeuilles_sim.head())
 
     # Identification du portefeuille à risque minimum:
-    min_risk_port = portefeuilles_sim.iloc[portefeuilles_sim["risque"].idxmin ()]
-    max_s_ratio_port = portefeuilles_sim.iloc[portefeuilles_sim["sharpe_ratio"].idxmax ()]
-    print ("Voici le portefeuille à risque minimum: ")
+    min_risk_port = portefeuilles_sim.iloc[portefeuilles_sim["risque"].idxmin()]
+    max_s_ratio_port = portefeuilles_sim.iloc[portefeuilles_sim["sharpe_ratio"].idxmax()]
+    print("Voici le portefeuille à risque minimum: ")
     print("")
-    print (min_risk_port)
-    print (" ")
-    print ("Voici le portefeuille à ratio de Sharpe maximum: ")
+    print(min_risk_port)
+    print(" ")
+    print("Voici le portefeuille à ratio de Sharpe maximum: ")
     print("")
-    print (max_s_ratio_port)
+    print(max_s_ratio_port)
 
     # Plot Simulation:
 
-    plt.subplots (figsize=(20, 20))
-    plt.scatter (portefeuilles_sim["risque"], portefeuilles_sim['returns'], c=portefeuilles_sim["sharpe_ratio"],
-                 cmap="viridis", marker='o', s=10, alpha=0.3)
-    plt.scatter (min_risk_port[1], min_risk_port[0], color='r', marker='*', s=500)
-    plt.scatter (max_s_ratio_port[1], max_s_ratio_port[0], color='g', marker='*', s=500)
-    plt.show ()
+    plt.subplots(figsize=(20, 20))
+    plt.scatter(portefeuilles_sim["risque"], portefeuilles_sim['returns'], c=portefeuilles_sim["sharpe_ratio"],
+                cmap="viridis", marker='o', s=10, alpha=0.3)
+    plt.scatter(min_risk_port[1], min_risk_port[0], color='r', marker='*', s=500)
+    plt.scatter(max_s_ratio_port[1], max_s_ratio_port[0], color='g', marker='*', s=500)
+    plt.show()
 
     return
 
 # MAIN-------------------------------------------------------------------------
+
+
 stock_list = ["MSFT", "IBM", "META", "GOOG", "V", "JNJ", "PG", "TSLA", "GS", "XOM"]
 start_d = dt.datetime(2020, 1, 1)
 stop_d = dt.datetime(2020, 12, 31)
 result_calc = calc_stock_data(stock_list, start_d, stop_d)
 
 # 1) Test Simulation Monte Carlo
-#-----------------------------
-#portfolio_mc_simulation(stock_list, start_d, stop_d, 20000)
+# -----------------------------
+# portfolio_mc_simulation(stock_list, start_d, stop_d, 20000)
 
 # 2) Test Random Walk
-#------------------
-#random_walk(stock_list, start_d, stop_d, 40000, 100)
+# ------------------
+# random_walk(stock_list, start_d, stop_d, 40000, 100)
 
 
 # 3) Test Optimisation sous contrainte
 # ------------------------------------
 #   a) Test minimum_variance
 #      ---------------------
-#minimi_var = minimum_variance(result_calc[0], result_calc[1])
+# minimi_var = minimum_variance(result_calc[0], result_calc[1])
 
 #   b) Test max_sharp_ratio
 #   -----------------------
-#optimi_SR = max_sharp_ratio(result_calc[0], result_calc[1])
-#--------------------------------------------------------------
-
-
-
-
+# optimi_SR = max_sharp_ratio(result_calc[0], result_calc[1])
+# --------------------------------------------------------------
