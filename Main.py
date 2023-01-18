@@ -331,7 +331,6 @@ def random_walk(stocks, start_date, end_date, nb_sim, nb_walk):
 stock_list = ["MSFT", "IBM", "META", "GOOG", "V", "JNJ", "PG", "TSLA", "GS", "XOM"]
 start_d = dt.datetime(2020, 1, 1)
 stop_d = dt.datetime(2020, 12, 31)
-result_calc = calc_stock_data(stock_list, start_d, stop_d)
 
 # 1) Test Simulation Monte Carlo
 # -----------------------------
