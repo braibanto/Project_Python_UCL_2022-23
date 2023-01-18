@@ -159,8 +159,8 @@ def sharp_ratio_opp(poids, returns, cov_matrix, ss_risque=0):
 
 def max_sharp_ratio(returns, cov_matrix, ss_risque=0, constraints_set=(0, 1)):
     """
-    Cette fonction calcule le portefeuille avec le ratio de Sharp maximum en utilisant un algorythme de minimisation sous
-    contraintes de la librairie SciPY.
+    Cette fonction calcule le portefeuille avec le ratio de Sharp maximum en utilisant un algorythme de minimisation
+    sous contraintes de la librairie SciPY.
 
     :param returns: array/DF contenant le return journalier moyen des actions
     :param cov_matrix: array/DF contenant la matrice var/cov des returns journaliers
@@ -176,7 +176,8 @@ def max_sharp_ratio(returns, cov_matrix, ss_risque=0, constraints_set=(0, 1)):
     constraints = ({'type': 'eq', 'fun': lambda x: np.sum(x) - 1})
     bound = constraints_set
     bounds = tuple(bound for asset in range(long_port))
-    result = scy.minimize(sharp_ratio_opp, init_guess, args=args, method='SLSQP', bounds=bounds, constraints=constraints)
+    result = scy.minimize(sharp_ratio_opp, init_guess, args=args, method='SLSQP', bounds=bounds,
+                          constraints=constraints)
 
     poids_result_df = pd.DataFrame(result['x'], index=returns.index, columns=['poids'])
     ret_port_opt = np.dot(returns, poids_result_df["poids"]) * 252 * 100
@@ -217,7 +218,8 @@ def minimum_variance(returns, cov_matrix, constraints_set=(0, 1)):
 
     print("Optimisation réalisée. Risque du portefeuille:  ", result.fun)
     print("Return du portefeuille de Risque Minimum ", round(ret_port_opt, 2), " %")
-    print("Sharp Ratio du portefeuille de Risque Minimum: ", -sharp_ratio_opp(poids_result_df["poids"], returns, cov_matrix))
+    print("Sharp Ratio du portefeuille de Risque Minimum: ", -sharp_ratio_opp(poids_result_df["poids"], returns,
+          cov_matrix))
     print("Poids des actions : ", poids_result_df)
     print("")
 
