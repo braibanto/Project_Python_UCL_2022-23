@@ -182,12 +182,23 @@ def max_sharp_ratio(returns, cov_matrix, ss_risque=0, constraints_set=(0, 1)):
     poids_result_df = pd.DataFrame(result['x'], index=returns.index, columns=["poids"])
     ret_port_opt = np.dot(returns, poids_result_df["poids"]) * 252 * 100
 
-    print("Optimisation réalisée avec Sharp Ratio optimisé = ", -result.fun)
-    print("Poids des actions:")
-    print("------------------")
-    print(poids_result_df * 100)
+   # print("Optimisation réalisée avec Sharp Ratio optimisé = ", -result.fun)
+   # print("Poids des actions:")
+   # print("------------------")
+   # print(poids_result_df * 100)
+   # print("")
+   # print("Return Portfolio Optimisation Sharp Ratio", round(ret_port_opt, 2), " %")
+
     print("")
-    print("Return Portfolio Optimisation Sharp Ratio", round(ret_port_opt, 2), " %")
+    print ("Optimisation sous contrainte (Maximisation du SR): ")
+    print ("-------------------------------------------------------")
+    print("")
+    print ("Optimisation réalisée,  SR du portefeuille:  ", -result.fun)
+    print ("Return du portefeuille Max SR ", round (ret_port_opt, 2), " %")
+    print ("Sharp Ratio du portefeuille SR Maximum: ", -sharp_ratio_opp (poids_result_df["poids"], returns,
+                                                                                cov_matrix))
+    print("")
+    print ("Poids des actions : ", poids_result_df)
 
     return
 
@@ -216,12 +227,17 @@ def minimum_variance(returns, cov_matrix, constraints_set=(0, 1)):
     poids_result_df = pd.DataFrame(result['x'], index=returns.index, columns=["poids"])
     ret_port_opt = np.dot(returns, poids_result_df["poids"]) * 252 * 100
 
-    print("Optimisation réalisée. Risque du portefeuille:  ", result.fun)
+    print("")
+    print("Optimisation sous contrainte (minimimisation du risque: ")
+    print("-------------------------------------------------------")
+    print("")
+    print("Optimisation réalisée, risque du portefeuille:  ", result.fun)
     print("Return du portefeuille de Risque Minimum ", round(ret_port_opt, 2), " %")
     print("Sharp Ratio du portefeuille de Risque Minimum: ", -sharp_ratio_opp(poids_result_df["poids"], returns,
           cov_matrix))
-    print("Poids des actions : ", poids_result_df)
     print("")
+    print("Poids des actions : ", poids_result_df)
+
 
     return
 
@@ -234,7 +250,7 @@ def random_walk(stocks, start_date, end_date, nb_sim, nb_walk):
     Sur base de cette dernière simulation, la fonction identifie:
 
         - le portefeuille ayant le ratio de Sharp maximum dans l'espace risque/return
-        - le portfeuille auant le risque minimum dans l'espace risque/return
+        - le portefeuille auant le risque minimum dans l'espace risque/return
 
     La fonction dessine enfin un scatter plot de chaque simulation dans l'espace risque/return
 
@@ -330,7 +346,7 @@ def random_walk(stocks, start_date, end_date, nb_sim, nb_walk):
 # MAIN-------------------------------------------------------------------------
 
 
-stock_list = ["MSFT", "IBM", "META", "GOOG", "V", "JNJ", "PG", "TSLA", "GS", "XOM"]
+stock_list = ["MSFT", "IBM", "META", "GOOG", "V", "JNJ", "PG", "PFE", "WFC", "GS", "XOM"]
 start_d = dt.datetime(2020, 1, 1)
 stop_d = dt.datetime(2020, 12, 31)
 result_calc = calc_stock_data(stock_list, start_d, stop_d)
@@ -348,9 +364,9 @@ result_calc = calc_stock_data(stock_list, start_d, stop_d)
 # ------------------------------------
 #   a) Test minimum_variance
 #      ---------------------
-# minimi_var = minimum_variance(result_calc[0], result_calc[1])
+minimi_var = minimum_variance(result_calc[0], result_calc[1])
 
 #   b) Test max_sharp_ratio
 #   -----------------------
-# optimi_SR = max_sharp_ratio(result_calc[0], result_calc[1])
+#optimi_SR = max_sharp_ratio(result_calc[0], result_calc[1])
 # --------------------------------------------------------------
