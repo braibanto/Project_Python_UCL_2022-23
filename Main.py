@@ -342,7 +342,7 @@ result_calc = calc_stock_data(stock_list, start_d, stop_d)
 
 # 2) Test Random Walk
 # ------------------
-random_walk(stock_list, start_d, stop_d, 20000, 500)
+# random_walk(stock_list, start_d, stop_d, 20000, 500)
 
 
 # 3) Test Optimisation sous contrainte
