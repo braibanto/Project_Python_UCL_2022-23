@@ -123,8 +123,6 @@ def portfolio_mc_simulation(stocks, start, end, nb_sim):
     plt.scatter(max_s_ratio_port[1], max_s_ratio_port[0], color='g', marker='*', s=500)
     plt.show()
 
-    return
-
 
 def variance_port(poids, moy_return, cov_matrix):
     """
@@ -183,17 +181,15 @@ def max_sharp_ratio(returns, cov_matrix, ss_risque=0, constraints_set=(0, 1)):
     ret_port_opt = np.dot(returns, poids_result_df["poids"]) * 252 * 100
 
     print("")
-    print ("Optimisation sous contrainte (Maximisation du SR): ")
-    print ("--------------------------------------------------")
+    print("Optimisation sous contrainte (Maximisation du SR): ")
+    print("--------------------------------------------------")
     print("")
-    print ("Optimisation réalisée,  Sharp ratio du portefeuille:  ", -result.fun)
-    print ("Return du portefeuille Max SR ", round (ret_port_opt, 2), " %")
-    print ("Sharp Ratio du portefeuille Max SR: ", -sharp_ratio_opp (poids_result_df["poids"], returns,
-                                                                                cov_matrix))
+    print("Optimisation réalisée,  Sharp ratio du portefeuille:  ", -result.fun)
+    print("Return du portefeuille Max SR ", round(ret_port_opt, 2), " %")
+    print("Sharp Ratio du portefeuille Max SR: ", -sharp_ratio_opp(poids_result_df["poids"], returns,
+                                                                   cov_matrix))
     print("")
-    print ("Poids des actions : ", poids_result_df)
-
-    return
+    print("Poids des actions : ", poids_result_df)
 
 
 def minimum_variance(returns, cov_matrix, constraints_set=(0, 1)):
@@ -230,9 +226,6 @@ def minimum_variance(returns, cov_matrix, constraints_set=(0, 1)):
           cov_matrix))
     print("")
     print("Poids des actions : ", poids_result_df)
-
-
-    return
 
 
 def random_walk(stocks, start_date, end_date, nb_sim, nb_walk):
@@ -337,7 +330,6 @@ def random_walk(stocks, start_date, end_date, nb_sim, nb_walk):
     plt.scatter(max_s_ratio_port[1], max_s_ratio_port[0], color='g', marker='*', s=500)
     plt.show()
 
-    return
 
 # MAIN-------------------------------------------------------------------------
 
