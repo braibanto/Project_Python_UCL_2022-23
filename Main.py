@@ -76,7 +76,6 @@ def portfolio_mc_simulation(stocks, start, end, nb_sim):
     :param end : date de fin (utilise le module datetime as dt)
     :param nb_sim : nombre de simulations
 
-    :return NONE
     """
 
     returns = []
@@ -165,7 +164,6 @@ def max_sharp_ratio(returns, cov_matrix, ss_risque=0, constraints_set=(0, 1)):
     :param ss_risque: taux sans risque du marché (fixé à zero)
     :param constraints_set: les bornes pour les variables d'optimisation
 
-    :return: none
     """
 
     long_port = len(returns)
@@ -201,7 +199,6 @@ def minimum_variance(returns, cov_matrix, constraints_set=(0, 1)):
     :param cov_matrix: array/DF contenant la matrice var/cov des returns journaliers
     :param constraints_set: les bornes pour les variables d'optimisation
 
-    :return: none
     """
 
     long_port = len(returns)
@@ -245,7 +242,7 @@ def random_walk(stocks, start_date, end_date, nb_sim, nb_walk):
     :param end_date:
     :param nb_sim: nombre de simulation de Monte Carlo pour le portefeuille
     :param nb_walk: nombre de random walk pour chaque action
-    :return:
+
     """
 
     data_sim_price = pd.DataFrame(columns=stocks)
