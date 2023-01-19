@@ -182,13 +182,6 @@ def max_sharp_ratio(returns, cov_matrix, ss_risque=0, constraints_set=(0, 1)):
     poids_result_df = pd.DataFrame(result['x'], index=returns.index, columns=["poids"])
     ret_port_opt = np.dot(returns, poids_result_df["poids"]) * 252 * 100
 
-   # print("Optimisation réalisée avec Sharp Ratio optimisé = ", -result.fun)
-   # print("Poids des actions:")
-   # print("------------------")
-   # print(poids_result_df * 100)
-   # print("")
-   # print("Return Portfolio Optimisation Sharp Ratio", round(ret_port_opt, 2), " %")
-
     print("")
     print ("Optimisation sous contrainte (Maximisation du SR): ")
     print ("--------------------------------------------------")
